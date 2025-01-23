@@ -1,3 +1,3 @@
 const Queue = require('bull');
 
-export const videoDownloadingQueue = new Queue('video downloading', 'redis://127.0.0.1:6379');
+export const videoDownloadingQueue = new Queue('video downloading', process.env.REDIS_CONNECT_URI);
