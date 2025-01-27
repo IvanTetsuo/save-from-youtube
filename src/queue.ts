@@ -1,3 +1,3 @@
-const Queue = require('bull');
+import Queue from 'bull';
 
-export const videoDownloadingQueue = new Queue('video downloading', process.env.REDIS_CONNECT_URI);
+export const videoDownloadingQueue = new Queue('video downloading', {redis: process.env.REDIS_CONNECT_URI});
