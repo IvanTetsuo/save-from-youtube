@@ -3,6 +3,7 @@ import Bull from "bull";
 //TODO: переделать на import
 const ytdl = require('ytdl-core');
 import fs from "fs";
+import path from "path";
 
 
 class VideoDownloader {
@@ -12,10 +13,23 @@ class VideoDownloader {
     }
 
     async downloadVideo(url: string, job_id: string): Promise<boolean> {
-        // const info = ytdl(url)
-        // .pipe(fs.createWriteStream(`${job_id}_video.mp4`));
-        // console.log(info);
-        return false;
+        return new Promise((resolve) => {
+            if (!ytdl.validateURL(url)){
+                resolve(false);
+            }
+            const filePath = path.join('./videos', `${job_id}_video.mp4`);
+            const fileStream = fs.createWriteStream(filePath);
+            ytdl(url).pipe(fileStream); //info
+
+            fileStream.on('finish', () => {
+                console.log(`Видео сохранено в: ${filePath}`);
+                resolve(true);
+            });
+            fileStream.on('error', (err) => {
+                console.error('Ошибка при записи файла:', err);
+                resolve(false);
+            });
+        });
     }
 
     async getJobStatus(token: string): Promise<Bull.JobStatus | "stuck" | undefined> {
