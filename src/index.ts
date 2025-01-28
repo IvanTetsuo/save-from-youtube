@@ -10,6 +10,7 @@ import IORedis from 'ioredis';
 import { ExpressAdapter } from '@bull-board/express';
 import { createBullBoard } from '@bull-board/api';
 import  { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import expressBasicAuth from 'express-basic-auth';
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -17,8 +18,15 @@ createBullBoard({
     queues: [new BullMQAdapter(videoDownloadingQueue)],
     serverAdapter: serverAdapter,
 });
-app.use('/admin/queues', serverAdapter.getRouter());
-// BASIC AUTH добавить + добавить 1 параметр, чтоб запрашивало в окошке авторизацию (называется challenge)
+const dashboardAdmin = process.env.BULLDASHBOARD_CONNECT_USER!;
+const dashboardPassword = process.env.BULLDASHBOARD_CONNECT_PASSWORD!;
+if (!dashboardAdmin || !dashboardPassword) {
+    throw new Error(`Dashboard's username or password is empty`);
+}
+app.use('/admin/queues',expressBasicAuth({
+    users: {[dashboardAdmin]: dashboardPassword},
+    challenge: true,
+}), serverAdapter.getRouter());
 
 app.use(express.json());
 app.use('/', router);
