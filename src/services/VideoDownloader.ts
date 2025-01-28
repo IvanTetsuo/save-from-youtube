@@ -1,5 +1,5 @@
+import { JobState } from "bullmq";
 import { videoDownloadingQueue } from "../queue";
-import Bull from "bull";
 //TODO: переделать на import
 const ytdl = require('ytdl-core');
 import fs from "fs";
@@ -8,7 +8,10 @@ import path from "path";
 
 class VideoDownloader {
     async addDownloadTask(url: string): Promise<string> {
-        const job = await videoDownloadingQueue.add({url});
+        const job = await videoDownloadingQueue.add('downloadVideo', {url});
+        if (!job.id) {
+            throw new Error('No Job.id');
+        }
         return job.id.toString();
     }
 
@@ -32,7 +35,7 @@ class VideoDownloader {
         });
     }
 
-    async getJobStatus(token: string): Promise<Bull.JobStatus | "stuck" | undefined> {
+    async getJobStatus(token: string): Promise<"unknown" | JobState> {
         const job = await videoDownloadingQueue.getJob(token);
         return await job?.getState();
     }
