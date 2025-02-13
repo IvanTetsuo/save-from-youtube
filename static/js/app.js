@@ -16,6 +16,7 @@ async function addVideoDownloadTask(url) {
 document.addEventListener("DOMContentLoaded", async () => {
     const sendButton = document.querySelector('#sendButton');
     const urlBox = document.querySelector('#urlBox');
+    urlBox.value = localStorage.getItem('url') || '';
     sendButton.addEventListener('click', async (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -25,6 +26,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         const token = await addVideoDownloadTask(url);
         localStorage.setItem('token', token);
+        localStorage.setItem('url', url);
+        urlBox.disabled = 'disabled';
+
         sendButton.classList.add('disabled');
         await enableDownloadButton();
     });
@@ -32,17 +36,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (token) {
         sendButton.classList.add('disabled');
     }
-
     await enableDownloadButton();
+    
+    const clearButton = document.querySelector('#clearButton');
+    clearButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        clear();
+    });
 });
 
+function clear() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('url');
+    document.querySelector('#urlBox').value = '';
+    document.querySelector('#urlBox').disabled = undefined;
+    document.querySelector('#downloadButton').classList.add('disabled');
+    document.querySelector('#sendButton').classList.remove('disabled');
+}
+
 async function enableDownloadButton() {
-    const token = localStorage.getItem('token');
-    const result = await waitingDownloading(token);
-    if (result.downloadVideoUrl){
-        const downloadButton = document.querySelector('#downloadButton');
-        downloadButton.href = result.downloadVideoUrl;
-        downloadButton.classList.remove('disabled');
+    try {
+        const token = localStorage.getItem('token');
+        const result = await waitingDownloading(token);
+        if (result.downloadVideoUrl){
+            const downloadButton = document.querySelector('#downloadButton');
+            downloadButton.href = result.downloadVideoUrl;
+            downloadButton.classList.remove('disabled');
+        }
+    } catch(err) {
+        clear();
+        console.log(err);
     }
 }
 
@@ -62,16 +86,21 @@ function sleep(ms = 5000) {
 }
 
 async function waitingDownloading(token) {
+    if (!token) {
+        throw new Error('Попытка отправить пустой токен');
+    }
     let result;
     let status;
     while(status !== 'failed' && status !== 'completed') {
         result = await getResult(token);
+        if (result.error) {
+            throw new Error('Видео не найдено');
+        }
+        console.log(result);
         status = result.status;
-        await sleep();
+        if (status !== 'failed' && status !== 'completed') {
+            await sleep();
+        }
     }
     return result;
 }
-
-// (async () => {
-//     await addVideoDownloadTask("https://www.youtube.com/watch?v=R31c6o05tBs");
-// })();
