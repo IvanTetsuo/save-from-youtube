@@ -11,6 +11,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { createBullBoard } from '@bull-board/api';
 import  { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import expressBasicAuth from 'express-basic-auth';
+import path from 'path';
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -33,6 +34,9 @@ app.use('/', router);
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+app.use(express.static('static'));
 
 const connection = new IORedis({
     ...connectionOptions,
