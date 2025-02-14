@@ -1,5 +1,5 @@
-const addVideoDownloadTaskPath = '//localhost:3000/api/add-video-download-task';
-const getResultPath = '//localhost:3000/api/get-video-download-result?token=';
+const addVideoDownloadTaskPath = '/api/add-video-download-task';
+const getResultPath = '/api/get-video-download-result?token=';
 
 async function addVideoDownloadTask(url) {
     const response = await fetch(addVideoDownloadTaskPath, {
