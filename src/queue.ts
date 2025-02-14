@@ -6,6 +6,7 @@ if (!url) {
 }
 const objUrl = new URL(url);
 export const connectionOptions = {
+    family: 0,
     username: objUrl.username,
     password: objUrl.password,
     port: +objUrl.port,
