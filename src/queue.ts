@@ -1,6 +1,6 @@
 import {ConnectionOptions, Queue} from 'bullmq';
 
-const url = process.env.REDIS_CONNECT_URI;
+const url = process.env.REDIS_CONNECT_URL;
 if (!url) {
     throw new Error('Empty Redis connect URL')
 }
