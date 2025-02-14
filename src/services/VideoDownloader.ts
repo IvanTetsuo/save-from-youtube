@@ -1,10 +1,30 @@
 import { JobState } from "bullmq";
 import { videoDownloadingQueue } from "../queue";
 //TODO: переделать на import
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 import fs from "fs";
 import path from "path";
 
+const parseCookiesStr = (str: string) => {
+    return str.split('; ').map((el) => {
+        const [name, value] = el.split('=');
+        return {name, value};
+    });
+}
+
+const cookiesStr = process.env.AUTH_YOUTUBE_COOKIES;
+if (!cookiesStr) {
+    throw new Error('Отсутствует AUTH_YOUTUBE_COOKIES');
+}
+const cookies = parseCookiesStr(cookiesStr);
+console.log(cookies);
+const agentOptions = {
+    pipelining: 5,
+    maxRedirections: 0,
+    localAddress: "127.0.0.1",
+};
+
+const agent = ytdl.createAgent(cookies);
 
 class VideoDownloader {
     async addDownloadTask(url: string): Promise<string> {
@@ -23,7 +43,7 @@ class VideoDownloader {
                 }
                 const filePath = this.getVideoFilePath(job_id);
                 const fileStream = fs.createWriteStream(filePath);
-                const ytdlUrl = ytdl(url); //info
+                const ytdlUrl = ytdl(url, {agent}); //info
                 const ytdlUrlPipe = ytdlUrl.pipe(fileStream);
 
                 fileStream.on('finish', () => {
