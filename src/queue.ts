@@ -13,3 +13,4 @@ export const connectionOptions = {
     host: objUrl.hostname,
 };
 export const videoDownloadingQueue = new Queue('videos downloading', {connection: connectionOptions});
+export const videoRemovalQueue = new Queue('videos removal', {connection: connectionOptions});

@@ -51,3 +51,9 @@ new Worker ('videos downloading', async job => {
         throw new Error('Downloading failed');
     }
 }, {connection});
+
+new Worker ('videos removal', async job => {
+    if (!job.id) {
+        throw new Error('No Job.id');
+    }
+}, {connection});
