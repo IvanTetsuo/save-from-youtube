@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 import { connectionOptions, videoDownloadingQueue } from './queue';
 import { videoDownloader } from './services/VideoDownloader';
+import { videoRemover } from './services/VideoRemover';
 import { Worker } from 'bullmq';
 import IORedis from 'ioredis';
 import { ExpressAdapter } from '@bull-board/express';
@@ -55,5 +56,9 @@ new Worker ('videos downloading', async job => {
 new Worker ('videos removal', async job => {
     if (!job.id) {
         throw new Error('No Job.id');
+    }
+    const isRemoved = await videoRemover.removeVideo(job.data.filePath);
+    if (!isRemoved) {
+        throw new Error('Remove failed');
     }
 }, {connection});
