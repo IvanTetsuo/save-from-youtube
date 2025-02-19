@@ -58,6 +58,9 @@ class VideoDownloader {
                     console.error('Ошибка при скачивании файла:', err);
                     resolve(false);
                 });
+                ytdlUrl.on('progress', (data: any) => {
+                    console.log(data);
+                });
             });
         } catch (err) {
             console.log(err);
