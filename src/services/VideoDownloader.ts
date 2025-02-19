@@ -55,7 +55,7 @@ class VideoDownloader {
                     resolve(false);
                 });
                 ytdlUrl.on('error', (err: any) => {
-                    console.error('Ошибка при записи файла:', err);
+                    console.error('Ошибка при скачивании файла:', err);
                     resolve(false);
                 });
             });
