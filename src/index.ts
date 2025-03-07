@@ -13,6 +13,11 @@ import { createBullBoard } from '@bull-board/api';
 import  { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import expressBasicAuth from 'express-basic-auth';
 import path from 'path';
+import loggingMiddleware from './logging/loggingMiddleware';
+import logger from './logging/logger';
+
+app.use(express.json());
+app.use(loggingMiddleware);
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -30,10 +35,9 @@ app.use('/admin/queues',expressBasicAuth({
     challenge: true,
 }), serverAdapter.getRouter());
 
-app.use(express.json());
 app.use('/', router);
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+    logger.info(`Example app listening on port ${port}`);
 });
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
