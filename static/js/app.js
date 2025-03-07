@@ -96,7 +96,6 @@ async function waitingDownloading(token) {
         if (result.error) {
             throw new Error('Видео не найдено');
         }
-        console.log(result);
         status = result.status;
         if (status !== 'failed' && status !== 'completed') {
             await sleep();

@@ -4,6 +4,7 @@ import { videoDownloadingQueue } from "../queue";
 const ytdl = require('@distube/ytdl-core');
 import fs from "fs";
 import path from "path";
+import logger from "../logging/logger";
 
 const parseCookiesStr = (str: string) => {
     return str.split('; ').map((el) => {
@@ -17,7 +18,7 @@ if (!cookiesStr) {
     throw new Error('Отсутствует AUTH_YOUTUBE_COOKIES');
 }
 const cookies = parseCookiesStr(cookiesStr);
-console.log(cookies);
+logger.info(cookies);
 const agentOptions = {
     pipelining: 5,
     maxRedirections: 0,
@@ -47,23 +48,23 @@ class VideoDownloader {
                 const ytdlUrlPipe = ytdlUrl.pipe(fileStream);
 
                 fileStream.on('finish', () => {
-                    console.log(`Видео сохранено в: ${filePath}`);
+                    logger.info(`Видео сохранено в: ${filePath}`);
                     resolve(true);
                 });
                 fileStream.on('error', (err: any) => {
-                    console.error('Ошибка при записи файла:', err);
+                    logger.error('Ошибка при записи файла:', err);
                     resolve(false);
                 });
                 ytdlUrl.on('error', (err: any) => {
-                    console.error('Ошибка при скачивании файла:', err);
+                    logger.error('Ошибка при скачивании файла:', err);
                     resolve(false);
                 });
                 ytdlUrl.on('progress', (data: any) => {
-                    console.log(data);
+                    logger.info(data);
                 });
             });
         } catch (err) {
-            console.log(err);
+            logger.error(err);
         }
     }
 

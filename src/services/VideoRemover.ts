@@ -1,10 +1,7 @@
-import { JobState } from "bullmq";
 import { videoRemovalQueue } from "../queue";
-//TODO: переделать на import
-const ytdl = require('@distube/ytdl-core');
 import fs from "fs";
-import path from "path";
 import { unlink } from 'node:fs/promises';
+import logger from "../logging/logger";
 
 class VideoRemover {
     async addRemoveTask(filePath: fs.PathLike): Promise<string> {
@@ -20,7 +17,7 @@ class VideoRemover {
             await unlink(filePath); // file delete
             return true;
         } catch(err) {
-            console.log(err);
+            logger.error(err);
             return false;
         }
         
